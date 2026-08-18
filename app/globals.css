@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #08090b;
+  --color-ink-soft: #101216;
+  --color-edge: #1e2229;
+  --color-haze: #8b93a1;
+  --color-paper: #eef1f6;
+  --color-amber: #ffb23f;
+  --color-amber-deep: #d8801a;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument), ui-serif, Georgia, serif;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The projector: a warm cone of light bleeding in from the top of the page. */
+.projector {
+  background:
+    radial-gradient(
+      120% 80% at 50% -20%,
+      color-mix(in oklab, var(--color-amber) 16%, transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      90% 60% at 50% 110%,
+      color-mix(in oklab, #3b6ea5 10%, transparent) 0%,
+      transparent 70%
+    );
+}
+
+/* 35mm grain, drawn as fractal noise so it costs no network request. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='220' height='220' filter='url(%23n)' opacity='0.55'/></svg>");
+  animation: grain-drift 900ms steps(3) infinite;
+}
+
+@keyframes grain-drift {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(-2%, 1%); }
+  66% { transform: translate(1%, -2%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Sprocket holes running down the film strip rails. */
+.sprockets {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0 10px,
+    color-mix(in oklab, var(--color-paper) 9%, transparent) 10px 26px,
+    transparent 26px 36px
+  );
+  background-size: 100% 36px;
+}
+
+.blink {
+  animation: blink 2.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.28; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain::after,
+  .blink {
+    animation: none;
+  }
+}
