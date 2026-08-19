@@ -73,7 +73,7 @@ npm start        # serve the production build
 - The design is dark-only on purpose — a cinema, not a document. `color-scheme`
   is pinned to dark.
 - **Never commit secrets.** `.env.local` is gitignored. Only the Supabase
-  *anon* key belongs in `NEXT_PUBLIC_*` vars; the `service_role` key must never
+  *publishable* key belongs in `NEXT_PUBLIC_*` vars; the `sb_secret_` key must never
   reach the client or the repo.
 - Database rules live in `supabase/schema.sql` and are applied by hand in the
   Supabase SQL editor. If you change the schema, update that file so it stays

@@ -16,19 +16,26 @@ shows a "not wired up yet" note until you finish step 2.
 ## 2. Create the Supabase project
 
 1. Go to https://supabase.com/dashboard and create a new project.
-2. Open **Project Settings -> API Keys**. Copy the **Project URL** and the
-   **anon / public** key.
-3. Put them in `.env.local`:
+2. Open **Project Settings -> API Keys**. Under **Publishable key**, copy the
+   value starting `sb_publishable_`. (This is what older Supabase docs call the
+   *anon / public* key — same job, new name.)
+3. Open **Project Settings -> Data API** and copy the **Project URL**.
+4. Put both in `.env.local`:
 
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxx.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    ```
 
-   The anon key is safe to expose in the browser — row level security is what
-   protects the data. Never put the `service_role` key in this file.
+   The publishable key is meant to be visible in the browser — row level
+   security is what actually protects the data, which is why
+   `supabase/schema.sql` turns RLS on.
 
-4. Open **SQL Editor -> New query**, paste the whole of
+   > **The `sb_secret_...` key on that same page is different.** It bypasses
+   > RLS entirely. It must never go in a `NEXT_PUBLIC_` variable, never be
+   > committed, and is not needed by this project at all.
+
+5. Open **SQL Editor -> New query**, paste the whole of
    `supabase/schema.sql`, and run it. That creates the `early_access` table and
    the trigger that files each new signup into it.
 
@@ -70,7 +77,7 @@ npm i -g vercel
 vercel
 ```
 
-Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in the Vercel
+Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the Vercel
 project's **Environment Variables**, then repeat step 4 with the live domain
 (Supabase Site URL + redirect URL, and Google authorised origins).
 
