@@ -24,17 +24,23 @@ Two purposes, and both matter when deciding what to build:
 
 ## Current stage
 
-Pre-launch. The only thing built is the **coming-soon landing page**: it says
-the product is in development and offers Google sign-up so people can claim an
-early "founding member" account. No diary features exist yet.
+Pre-launch. Built so far:
+
+- the **coming-soon landing page**: says the product is in development and
+  offers Google sign-up so people can claim an early "founding member" account;
+- the **film catalogue** (September 2026): `/search` searches TMDB by title and
+  shows weekly trending films; `/film/[id]` shows a film's details.
+
+No diary features exist yet.
 
 ## Stack
 
 - **Next.js 15** (App Router, TypeScript, React 19, server components by default)
 - **Tailwind CSS v4** — configured in `app/globals.css` via `@theme`, no
   `tailwind.config`
-- **Supabase** — Google OAuth and Postgres. Will also hold films, diary entries
-  and reviews later
+- **Supabase** — Google OAuth and Postgres. Will also hold diary entries and
+  reviews later
+- **TMDB API** — film catalogue, called server-side only (`TMDB_API_KEY`)
 - Deploy target: **Vercel**
 
 ## Layout
@@ -46,7 +52,10 @@ app/
   globals.css           theme tokens and the film-grain/projector effects
   auth/callback/        OAuth code -> session exchange
   auth/signout/         POST sign-out
-components/             sign-in / sign-out buttons (client)
+  search/               film search + trending (server component, GET form)
+  film/[id]/            film detail page + 404
+components/             site header/logo, film card, sign-in / sign-out buttons
+lib/tmdb.ts             TMDB client (server-only, cached 1h)
 lib/supabase/
   client.ts             browser client
   server.ts             server-component / route-handler client
@@ -78,13 +87,16 @@ npm start        # serve the production build
 - Database rules live in `supabase/schema.sql` and are applied by hand in the
   Supabase SQL editor. If you change the schema, update that file so it stays
   the source of truth.
+- Same for TMDB: without `TMDB_API_KEY` the film pages show a notice instead of
+  failing. TMDB must be credited on every page that shows its data
+  (`TmdbCredit`).
 - The page must render without Supabase configured — `configured` in
   `app/page.tsx` guards this, so a fresh clone still shows something.
 
 ## Roadmap
 
-1. ~~Coming-soon page with Google early access~~ ← current
-2. Film data source (TMDB API) + search
+1. ~~Coming-soon page with Google early access~~
+2. ~~Film data source (TMDB API) + search~~ ← current
 3. Diary: log a film with a date, rating, rewatch flag
 4. Profiles and public diary pages
 5. Lists and written reviews

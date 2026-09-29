@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SignInButton } from "@/components/sign-in-button";
 import { SignOutButton } from "@/components/sign-out-button";
+import { Logo } from "@/components/site-header";
 
 const configured = Boolean(
   process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -23,6 +25,7 @@ const perks = [
 ];
 
 const roadmap = [
+  { label: "Film catalogue", status: "Live", href: "/search" },
   { label: "Diary & ratings", status: "Building" },
   { label: "Lists and reviews", status: "Next" },
   { label: "Year in review stats", status: "Planned" },
@@ -82,17 +85,7 @@ export default async function Home() {
 
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-10 sm:px-10">
         <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <span
-              aria-hidden="true"
-              className="grid h-7 w-7 place-items-center rounded-[7px] border border-edge bg-ink-soft"
-            >
-              <span className="h-2 w-2 rounded-[2px] bg-amber" />
-            </span>
-            <span className="text-[15px] font-semibold tracking-tight">
-              framebyframe
-            </span>
-          </div>
+          <Logo />
 
           <span className="inline-flex items-center gap-2 rounded-full border border-edge bg-ink-soft/70 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-haze">
             <span className="blink h-1.5 w-1.5 rounded-full bg-amber" />
@@ -118,8 +111,14 @@ export default async function Home() {
           <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-haze sm:text-lg">
             We&rsquo;re still in the cutting room. framebyframe will let you log
             every film you see, rate it, write it up, and watch a year of your
-            taste take shape. Nothing is live yet &mdash; but the door is open
-            early.
+            taste take shape. The film catalogue is already open &mdash;{" "}
+            <Link
+              href="/search"
+              className="text-paper underline decoration-amber underline-offset-4 hover:text-amber"
+            >
+              look anything up
+            </Link>{" "}
+            &mdash; and the door to the diary is open early.
           </p>
 
           <div className="mt-10">
@@ -184,8 +183,20 @@ export default async function Home() {
           <ul className="flex flex-wrap gap-x-6 gap-y-2">
             {roadmap.map((item) => (
               <li key={item.label} className="flex items-center gap-2 text-sm">
-                <span className="text-haze">{item.label}</span>
-                <span className="rounded-full border border-edge px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] text-haze/80">
+                {item.href ? (
+                  <Link href={item.href} className="text-paper hover:text-amber">
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span className="text-haze">{item.label}</span>
+                )}
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] ${
+                    item.href
+                      ? "border-amber/50 text-amber"
+                      : "border-edge text-haze/80"
+                  }`}
+                >
                   {item.status}
                 </span>
               </li>
