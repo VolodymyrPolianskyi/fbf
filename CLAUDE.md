@@ -87,11 +87,11 @@ npm start        # serve the production build
 - Database rules live in `supabase/schema.sql` and are applied by hand in the
   Supabase SQL editor. If you change the schema, update that file so it stays
   the source of truth.
+- The page must render without Supabase configured — `configured` in
+  `app/page.tsx` guards this, so a fresh clone still shows something.
 - Same for TMDB: without `TMDB_API_KEY` the film pages show a notice instead of
   failing. TMDB must be credited on every page that shows its data
   (`TmdbCredit`).
-- The page must render without Supabase configured — `configured` in
-  `app/page.tsx` guards this, so a fresh clone still shows something.
 
 ## Roadmap
 
