@@ -68,7 +68,27 @@ Then under **Authentication -> URL Configuration**:
 Restart `npm run dev`. The Google button now works, and each signup shows up in
 **Table Editor -> early_access**.
 
-## 5. Deploy
+## 5. Connect the film catalogue (TMDB)
+
+Film search and film pages read from The Movie Database.
+
+1. Create a free account at https://www.themoviedb.org/signup.
+2. Open **Settings -> API**, request a key (type *Developer*, personal use is
+   fine), and copy either the **API Key** or the **API Read Access Token** —
+   the code accepts both.
+3. Add it to `.env.local`:
+
+   ```
+   TMDB_API_KEY=...
+   ```
+
+   No `NEXT_PUBLIC_` prefix: the key is only ever used on the server, so it
+   never reaches the browser.
+
+Restart `npm run dev` and open http://localhost:3000/search. Without the key
+the page still renders and says the catalogue is not connected.
+
+## 6. Deploy
 
 The easiest host is Vercel:
 
@@ -77,8 +97,9 @@ npm i -g vercel
 vercel
 ```
 
-Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the Vercel
-project's **Environment Variables**, then repeat step 4 with the live domain
+Add `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and
+`TMDB_API_KEY` in the Vercel project's **Environment Variables** (changes only
+apply to the next deployment, so redeploy afterwards), then repeat step 4 with the live domain
 (Supabase Site URL + redirect URL, and Google authorised origins).
 
 ## Troubleshooting
@@ -88,4 +109,5 @@ project's **Environment Variables**, then repeat step 4 with the live domain
 | Button says "not wired up yet" | `.env.local` missing or dev server not restarted |
 | `redirect_uri_mismatch` from Google | The Supabase callback URL is not in the Google credentials |
 | Signed in but no member number | `supabase/schema.sql` was never run |
+| `/search` says the catalogue is not connected | `TMDB_API_KEY` missing, or the dev server / Vercel deployment predates it |
 | Redirected back to `/?error=auth` | The site's `/auth/callback` URL is not in Supabase's redirect list |
