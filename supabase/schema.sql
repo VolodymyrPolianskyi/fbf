@@ -59,3 +59,47 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- ---------------------------------------------------------------------------
+-- Diary: one row per viewing. Logging the same film twice is two rows, which
+-- is what a rewatch is.
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.diary_entries (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references auth.users on delete cascade default auth.uid(),
+  film_id      integer not null,
+  -- A snapshot of the TMDB fields the diary list shows, so reading the diary
+  -- costs no TMDB calls.
+  title        text not null,
+  release_year smallint,
+  poster_path  text,
+  watched_on   date not null default current_date,
+  -- Half stars stored as whole numbers: 1 = half a star, 10 = five stars.
+  rating       smallint check (rating between 1 and 10),
+  rewatch      boolean not null default false,
+  created_at   timestamptz not null default now()
+);
+
+comment on table public.diary_entries is
+  'One row per film watched. rating is in half stars (1-10), null when unrated.';
+
+create index if not exists diary_entries_user_watched
+  on public.diary_entries (user_id, watched_on desc, created_at desc);
+
+alter table public.diary_entries enable row level security;
+
+drop policy if exists "read own diary" on public.diary_entries;
+create policy "read own diary"
+  on public.diary_entries for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "write own diary" on public.diary_entries;
+create policy "write own diary"
+  on public.diary_entries for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "delete own diary" on public.diary_entries;
+create policy "delete own diary"
+  on public.diary_entries for delete
+  using (auth.uid() = user_id);
