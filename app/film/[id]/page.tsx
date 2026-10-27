@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FilmDiary } from "@/components/film-diary";
 import { SiteHeader, TmdbCredit } from "@/components/site-header";
 import {
   backdropUrl,
@@ -13,6 +14,7 @@ import {
 } from "@/lib/tmdb";
 
 type Params = Promise<{ id: string }>;
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 // Resolves the route to a film, or to null when TMDB is not set up or down.
 // A missing film is a 404 either way.
@@ -62,8 +64,15 @@ function listNames(names: string[]) {
   return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
 }
 
-export default async function FilmPage({ params }: { params: Params }) {
+export default async function FilmPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const film = await loadFilm(params);
+  const { log } = await searchParams;
 
   return (
     <main className="grain relative min-h-dvh overflow-hidden">
@@ -73,7 +82,7 @@ export default async function FilmPage({ params }: { params: Params }) {
         <SiteHeader />
 
         {film ? (
-          <FilmBody film={film} />
+          <FilmBody film={film} logStatus={typeof log === "string" ? log : undefined} />
         ) : (
           <section className="flex-1 py-20">
             <p className="max-w-xl rounded-2xl border border-edge bg-ink-soft/70 p-6 text-sm leading-relaxed text-haze">
@@ -107,7 +116,13 @@ function Backdrop({ path }: { path: string | null }) {
   );
 }
 
-function FilmBody({ film }: { film: FilmDetail }) {
+function FilmBody({
+  film,
+  logStatus,
+}: {
+  film: FilmDetail;
+  logStatus?: string;
+}) {
   const poster = posterUrl(film.poster_path, "w500");
   const year = releaseYear(film);
   const directors = directorsOf(film);
@@ -219,10 +234,7 @@ function FilmBody({ film }: { film: FilmDetail }) {
             </section>
           ) : null}
 
-          <p className="mt-10 inline-flex items-center gap-2 rounded-full border border-edge bg-ink-soft/70 px-4 py-2 text-[13px] text-haze">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber" />
-            Logging films to your diary is coming next.
-          </p>
+          <FilmDiary filmId={film.id} status={logStatus} />
         </div>
       </div>
     </article>
