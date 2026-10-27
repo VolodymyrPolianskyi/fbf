@@ -26,7 +26,16 @@ function GoogleMark() {
   );
 }
 
-export function SignInButton({ configured }: { configured: boolean }) {
+export function SignInButton({
+  configured,
+  next = "/",
+  label = "Sign up with Google",
+}: {
+  configured: boolean;
+  // Where to land after Google sends the person back.
+  next?: string;
+  label?: string;
+}) {
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
@@ -46,7 +55,9 @@ export function SignInButton({ configured }: { configured: boolean }) {
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      },
     });
 
     if (error) {
@@ -63,7 +74,7 @@ export function SignInButton({ configured }: { configured: boolean }) {
         className="group inline-flex w-fit items-center gap-3 rounded-full bg-paper px-6 py-3.5 text-[15px] font-medium text-ink transition hover:bg-white disabled:cursor-wait disabled:opacity-60"
       >
         <GoogleMark />
-        {loading ? "Taking you to Google…" : "Sign up with Google"}
+        {loading ? "Taking you to Google…" : label}
         <span className="text-ink/40 transition group-hover:translate-x-0.5">
           &rarr;
         </span>
