@@ -29,17 +29,18 @@ Pre-launch. Built so far:
 - the **coming-soon landing page**: says the product is in development and
   offers Google sign-up so people can claim an early "founding member" account;
 - the **film catalogue** (September 2026): `/search` searches TMDB by title and
-  shows weekly trending films; `/film/[id]` shows a film's details.
-
-No diary features exist yet.
+  shows weekly trending films; `/film/[id]` shows a film's details;
+- the **diary** (October 2026): signed-in people log a film from its page with
+  the day they watched it, a half-star rating and a rewatch flag; `/diary`
+  lists every viewing by month with a few totals. Diaries are private for now.
 
 ## Stack
 
-- **Next.js 15** (App Router, TypeScript, React 19, server components by default)
+- **Next.js 16** (App Router, TypeScript, React 19, server components by default)
 - **Tailwind CSS v4** — configured in `app/globals.css` via `@theme`, no
   `tailwind.config`
-- **Supabase** — Google OAuth and Postgres. Will also hold diary entries and
-  reviews later
+- **Supabase** — Google OAuth and Postgres (`early_access`, `diary_entries`).
+  Will also hold lists and reviews later
 - **TMDB API** — film catalogue, called server-side only (`TMDB_API_KEY`)
 - Deploy target: **Vercel**
 
@@ -53,15 +54,19 @@ app/
   auth/callback/        OAuth code -> session exchange
   auth/signout/         POST sign-out
   search/               film search + trending (server component, GET form)
-  film/[id]/            film detail page + 404
-components/             site header/logo, film card, sign-in / sign-out buttons
+  film/[id]/            film detail page + 404, with the diary log panel
+  diary/                diary page + server actions (log / remove an entry)
+components/             site header/logo, film card, film diary panel,
+                        sign-in / sign-out buttons
 lib/tmdb.ts             TMDB client (server-only, cached 1h)
+lib/diary.ts            diary reads, current user, star formatting
+lib/safe-path.ts        keeps redirect targets on this site
 lib/supabase/
   client.ts             browser client
   server.ts             server-component / route-handler client
   session.ts            session refresh helper
 proxy.ts                runs the refresh on every request
-supabase/schema.sql     early_access table, RLS, new-user trigger
+supabase/schema.sql     early_access + diary_entries tables, RLS, new-user trigger
 SETUP.md                how to create the Supabase + Google OAuth setup
 ```
 
@@ -87,8 +92,8 @@ npm start        # serve the production build
 - Database rules live in `supabase/schema.sql` and are applied by hand in the
   Supabase SQL editor. If you change the schema, update that file so it stays
   the source of truth.
-- The page must render without Supabase configured — `configured` in
-  `app/page.tsx` guards this, so a fresh clone still shows something.
+- The site must render without Supabase configured — `supabaseConfigured` in
+  `lib/supabase/server.ts` guards this, so a fresh clone still shows something.
 - Same for TMDB: without `TMDB_API_KEY` the film pages show a notice instead of
   failing. TMDB must be credited on every page that shows its data
   (`TmdbCredit`).
@@ -96,8 +101,8 @@ npm start        # serve the production build
 ## Roadmap
 
 1. ~~Coming-soon page with Google early access~~
-2. ~~Film data source (TMDB API) + search~~ ← current
-3. Diary: log a film with a date, rating, rewatch flag
+2. ~~Film data source (TMDB API) + search~~
+3. ~~Diary: log a film with a date, rating, rewatch flag~~ ← current
 4. Profiles and public diary pages
 5. Lists and written reviews
 6. Year-in-review stats

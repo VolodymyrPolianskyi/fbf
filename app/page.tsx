@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { unstable_rethrow } from "next/navigation";
+import {
+  createClient,
+  supabaseConfigured as configured,
+} from "@/lib/supabase/server";
 import { SignInButton } from "@/components/sign-in-button";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Logo } from "@/components/site-header";
-
-const configured = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-);
 
 const perks = [
   {
@@ -26,9 +25,9 @@ const perks = [
 
 const roadmap = [
   { label: "Film catalogue", status: "Live", href: "/search" },
-  { label: "Diary & ratings", status: "Building" },
-  { label: "Lists and reviews", status: "Next" },
-  { label: "Year in review stats", status: "Planned" },
+  { label: "Diary & ratings", status: "Live", href: "/diary" },
+  { label: "Lists and reviews", status: "Building" },
+  { label: "Year in review stats", status: "Next" },
 ];
 
 async function getSession() {
@@ -50,6 +49,7 @@ async function getSession() {
 
     return { user, member };
   } catch (error) {
+    unstable_rethrow(error);
     // A misconfigured or unreachable Supabase must never take the landing page
     // down — the whole point of this page is that it is always up.
     console.error("[framebyframe] could not read session:", error);
@@ -111,14 +111,14 @@ export default async function Home() {
           <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-haze sm:text-lg">
             We&rsquo;re still in the cutting room. framebyframe will let you log
             every film you see, rate it, write it up, and watch a year of your
-            taste take shape. The film catalogue is already open &mdash;{" "}
+            taste take shape. The first reels are already running &mdash;{" "}
             <Link
               href="/search"
               className="text-paper underline decoration-amber underline-offset-4 hover:text-amber"
             >
-              look anything up
+              look any film up
             </Link>{" "}
-            &mdash; and the door to the diary is open early.
+            and log it to your diary with the day you saw it and a rating.
           </p>
 
           <div className="mt-10">
@@ -161,7 +161,13 @@ export default async function Home() {
                   ))}
                 </ul>
 
-                <div className="mt-6 border-t border-edge pt-4">
+                <div className="mt-6 flex items-center justify-between gap-4 border-t border-edge pt-4">
+                  <Link
+                    href="/diary"
+                    className="rounded-full bg-amber px-5 py-2 text-sm font-medium text-ink transition hover:bg-paper"
+                  >
+                    Open your diary
+                  </Link>
                   <SignOutButton />
                 </div>
               </div>

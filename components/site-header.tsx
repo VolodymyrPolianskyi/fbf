@@ -24,6 +24,9 @@ export function SiteHeader() {
         <Link href="/search" className="text-haze transition hover:text-paper">
           Films
         </Link>
+        <Link href="/diary" className="text-haze transition hover:text-paper">
+          Diary
+        </Link>
       </nav>
     </header>
   );
